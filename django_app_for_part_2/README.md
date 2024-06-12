@@ -103,7 +103,7 @@ The second service is our [Django application](Django/). We use the `volumes` de
 #### Deploy Django Service
 
 ```bash
-$ cd Part\ 2/Django/
+$ cd django_app_for_part_2/Django/
 $ docker-compose up -d
 
 
@@ -156,7 +156,7 @@ So we don't have any polls so far, this is expected. Let's create one!
 ```python
 >>> question_text = "Which is best, tabs or spaces?"
 >>> q = Question.objects.create(question_text=question_text, pub_date=timezone.now())
-
+>>> q
 <Question: Which is best, tabs or spaces?>
 ```
 
@@ -165,6 +165,7 @@ Save the question to the database.
 ```python
 >>> q.save()
 >>> q.id  # We now have an id!
+1
 ```
 
 Check the possible answers to the question:
@@ -354,6 +355,15 @@ Click on a transaction and you'll get a waterfall overview of the tasks that the
 ![APM Overview](docs/post-apm-2.png)
 
 Using APM, we allow for really powerful analysis into the performance of your application. When running large-scale deployments in production, APM provides insights that developers could only dream of 5-10+ years ago.
+
+Try using the following endpoints and see what happens with APM: 
+
+
+1. http://0.0.0.0:8000/sleep
+2. http://0.0.0.0:8000/sleep/3
+3. http://0.0.0.0:8000/error
+
+
 
 ## Using docker-compose override files to perform testing
 

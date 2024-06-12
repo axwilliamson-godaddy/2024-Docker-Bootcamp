@@ -1,67 +1,4 @@
-# 2022 Bootcamp CI/CD & Docker (pt. 1)
-
-<!-- TOC -->
-
-- [2022 Bootcamp CI/CD & Docker (pt. 1)](#2022-bootcamp-ci-cd---docker--pt-1-)
-  * [Introduction to Docker](#introduction-to-docker)
-    + [What is Docker?](#what-is-docker-)
-    + [Why use Docker?](#why-use-docker-)
-    + [What does a Docker Image look like?](#what-does-a-docker-image-look-like-)
-  * [How do I use Docker images?](#how-do-i-use-docker-images-)
-    + [Install Docker](#install-docker)
-    + [Pull the Redis image](#pull-the-redis-image)
-    + [Inspect the Redis image](#inspect-the-redis-image)
-  * [Deploying an Open Source image](#deploying-an-open-source-image)
-    + [Create Redis container](#create-redis-container)
-    + [View Redis in container list](#view-redis-in-container-list)
-    + [Check Redis Logs](#check-redis-logs)
-    + [Store data in Redis](#store-data-in-redis)
-    + [Get data from Redis](#get-data-from-redis)
-    + [Stop Redis container](#stop-redis-container)
-    + [Try to get data again](#try-to-get-data-again)
-    + [Start the stopped Redis container](#start-the-stopped-redis-container)
-    + [Try to get data again (data is preserved)](#try-to-get-data-again--data-is-preserved-)
-    + [Remove Redis container](#remove-redis-container)
-    + [Recreate and see that the data doesn't exist anymore](#recreate-and-see-that-the-data-doesn-t-exist-anymore)
-  * [Using Docker Volumes to preserve container data](#using-docker-volumes-to-preserve-container-data)
-    + [Create Redis data volume](#create-redis-data-volume)
-    + [Recreate Redis container, using a docker volume](#recreate-redis-container--using-a-docker-volume)
-    + [Enter Redis container, using interactive session](#enter-redis-container--using-interactive-session)
-    + [Delete Redis container](#delete-redis-container)
-    + [Recreate the Redis container, using the same docker volume](#recreate-the-redis-container--using-the-same-docker-volume)
-    + [Validate data persistence](#validate-data-persistence)
-  * [Create custom Docker images](#create-custom-docker-images)
-    + [Build our image](#build-our-image)
-    + [Run our image](#run-our-image)
-      - [Run our image with a different `CMD`](#run-our-image-with-a-different--cmd-)
-    + [Connect Docker Containers](#connect-docker-containers)
-      - [docker network create](#docker-network-create)
-      - [docker network connect](#docker-network-connect)
-      - [docker inspect redis](#docker-inspect-redis)
-      - [docker run --net](#docker-run---net)
-    + [Talking to Redis](#talking-to-redis)
-      - [Run a single command](#run-a-single-command)
-      - [Run a command that creates a shell](#run-a-command-that-creates-a-shell)
-        * [Validate the stored data](#validate-the-stored-data)
-  * [Speeding things up with Docker Compose](#speeding-things-up-with-docker-compose)
-    + [docker-compose files](#docker-compose-files)
-    + [docker-compose cli](#docker-compose-cli)
-      - [docker-compose up](#docker-compose-up)
-      - [docker-compose ps](#docker-compose-ps)
-      - [docker-compose exec](#docker-compose-exec)
-        * [Side note](#side-note)
-        * [Living inside a container](#living-inside-a-container)
-      - [docker-compose down](#docker-compose-down)
-  * [Incorporating Visual Studio Code](#incorporating-visual-studio-code)
-    + [Installing](#installing)
-      - [Mac Users](#mac-users)
-      - [Windows Users](#windows-users)
-    + [Install VSCode dependencies](#install-vscode-dependencies)
-    + [Build & Run our development container](#build---run-our-development-container)
-    + [Run our Python code inside the container](#run-our-python-code-inside-the-container)
-  * [Final Thoughts](#final-thoughts)
-
-<!-- /TOC -->
+# 2024 Docker Workshop
 
 ## Introduction to Docker
 
@@ -69,7 +6,7 @@
 
 ### What is Docker?
 
-![That's a big question](https://31.media.tumblr.com/a4a72524f0bc49663881898367b5246a/tumblr_ns8pm9eEwN1tq4of6o1_540.gif)
+_![That's a big question](https://31.media.tumblr.com/a4a72524f0bc49663881898367b5246a/tumblr_ns8pm9eEwN1tq4of6o1_540.gif)_
 
 In their own words:
 
@@ -86,6 +23,61 @@ Essentially,
 - Integrate with popular [open-source solutions](https://hub.docker.com/search?q=&type=image) for databases, caching, monitoring, gaming, and more.
 - Since each container is isolated by default, the security from Docker can be unparallelled. For example, consider a web appliction that runs inside of a container. If the application was compriomised by bad actors, they'd only have access to the contents of the container, and not the entire host filesystem.
 - [So much more...](https://www.docker.com/use-cases)
+
+### Install Docker
+
+#### Mac Users
+
+Install Brew (if needed):
+
+```bash
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Have Brew install Docker
+
+```bash
+$ brew install --cask docker
+```
+
+#### Windows Users
+
+Windows is a little trickier...
+
+##### WSL Setup
+Installing Docker requires the [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) and the Ubuntu shell. Open PowerShell and type: 
+
+```shell
+wsl --install -d ubuntu
+```
+
+Then run:
+```shell
+wsl --set-default ubuntu
+```
+
+Open the WSL and create a user account for linux. 
+
+##### Docker Desktop
+
+Download and install Docker from here: https://docs.docker.com/desktop/install/windows-install/
+
+Once the Docker Desktop software is installed. Go into the Settings and click on `Resources` and then `WSL Integration`. Make sure that `Ubuntu` is Enabled.
+
+##### Make sure it works!
+
+Run Ubuntu in Windows and then type:
+```shell
+sudo su -
+```
+
+Then type:
+
+```shell
+docker
+```
+
+This should print the Docker help menu.
 
 ### What does a Docker Image look like?
 
@@ -111,40 +103,24 @@ COPY . .
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
 ```
 
-## How do I use Docker images?
+## Deploying an Open Source image
 
 Each image is different in terms of how you configure the specifics for the application running inside. What's common though, is _how_ you configure the containers. Most images are configured using environment variables and/or by mounting a local Docker volume with configuration files present. 
 
 Let's look at Redis, as it's a very popular and useful key-value store and caching solution.
 
-### Install Docker
-To [install Docker](https://docs.docker.com/docker-for-mac/install/), download the DMG file from: https://desktop.docker.com/mac/stable/amd64/Docker.dmg
+### What is Redis?
 
-From their docs:
+On their website, they define themselves as:
+> The open source, in-memory data store used by millions of developers as a database, cache, streaming engine, and message broker.
 
-1. Double-click `Docker.dmg` to open the installer, then drag the Docker icon to
-    the Applications folder.
+They also have a nice chart showing features:
 
-      ![Install Docker app](https://docs.docker.com/desktop/mac/images/docker-app-drag.png)
+_![Redis Features](docs/redis_features.png)_
 
-2. Double-click `Docker.app` in the Applications folder to start Docker. (In the example below, the Applications folder is in "grid" view mode.)
+On my team, we make use of a [library]([https://python-rq.org]) called `RQ-Python` that builds a queuing system for Python jobs on top of Redis. We create thousands of jobs each night and have hundreds of worker containers that perform the jobs.
 
-    ![Docker app in Hockeyapp](https://docs.docker.com/desktop/mac/images/docker-app-in-apps.png)
-
-    The Docker menu in the top status bar indicates that Docker Desktop is running, and accessible from a terminal.
-
-      ![Whale in menu bar](https://docs.docker.com/desktop/mac/images/whale-in-menu-bar.png)
-
-    If you've just installed the app, Docker Desktop launches the onboarding tutorial. The tutorial includes a simple exercise to build an example Docker image, run it as a container, push and save the image to Docker Hub.
-
-    ![Docker Quick Start tutorial](https://docs.docker.com/desktop/mac/images/docker-tutorial-mac.png)
-
-3. Click the Docker menu (![whale menu](https://docs.docker.com/desktop/mac/images/whale-x.png)) to see
-**Preferences** and other options.
-
-4. Select **About Docker** to verify that you have the latest version.
-
-Congratulations! You are now successfully running Docker Desktop.
+Ok, let's get started.
 
 ### Pull the Redis image
 
@@ -171,8 +147,6 @@ REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
 redis        latest    fad0ee7e917a   2 weeks ago   105MB
 ```
 
-## Deploying an Open Source image
-
 ### Create Redis container
 ```bash
 # Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d)
@@ -194,13 +168,13 @@ CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS  
 ```bash
 $ docker logs redis
 
-1:C 21 Jun 2021 19:21:53.171 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-1:C 21 Jun 2021 19:21:53.171 # Redis version=6.2.4, bits=64, commit=00000000, modified=0, pid=1, just started
-1:C 21 Jun 2021 19:21:53.171 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
-1:M 21 Jun 2021 19:21:53.172 * monotonic clock: POSIX clock_gettime
-1:M 21 Jun 2021 19:21:53.172 * Running mode=standalone, port=6379.
-1:M 21 Jun 2021 19:21:53.172 # Server initialized
-1:M 21 Jun 2021 19:21:53.173 * Ready to accept connections
+1:C 21 Jun 2024 19:21:53.171 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+1:C 21 Jun 2024 19:21:53.171 # Redis version=6.2.4, bits=64, commit=00000000, modified=0, pid=1, just started
+1:C 21 Jun 2024 19:21:53.171 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+1:M 21 Jun 2024 19:21:53.172 * monotonic clock: POSIX clock_gettime
+1:M 21 Jun 2024 19:21:53.172 * Running mode=standalone, port=6379.
+1:M 21 Jun 2024 19:21:53.172 # Server initialized
+1:M 21 Jun 2024 19:21:53.173 * Ready to accept connections
 ```
 
 ### Store data in Redis
@@ -347,7 +321,7 @@ $ docker exec -it redis redis-cli GET myname
 
 ## Create custom Docker images
 
-Let's create a container to utilize the code in `python-app/redis_client.py`. Our image is going to look very similar to the one we viewed earlier. With [Dockerfiles](/python-app/Dockerfile), it's extremely important to put the things that change _least_ at the top, as Docker will build and cache the `layers` it generates from this file. This is so that on subsequent builds, you won't need to wait for the entire command again (unless you explicitly want to run it without cache, which is possible). 
+Let's create a container to utilize the code in `redis_client_app/redis_client.py`. Our image is going to look very similar to the one we viewed earlier. With [Dockerfiles](/redis_client_app/Dockerfile), it's extremely important to put the things that change _least_ at the top, as Docker will build and cache the `layers` it generates from this file. This is so that on subsequent builds, you won't need to wait for the entire command again (unless you explicitly want to run it without cache, which is possible). 
 
 ```Docker
 # Use the small python image, no need for fancy add-ons
@@ -376,8 +350,8 @@ Using this image, we can build a container that can run our app on almost any ma
 ### Build our image
 
 ```bash
-# Build our container and tag (name) it as "bootcamp". The `python-app` tells docker what context to use for building the image. In this case we want to be inside of the folder that has our code.
-$ docker build -f python-app/Dockerfile -t bootcamp python-app
+# Build our container and tag (name) it as "bootcamp". The `redis_client_app` tells docker what context to use for building the image. In this case we want to be inside of the folder that has our code.
+$ docker build -f redis_client_app/Dockerfile -t bootcamp redis_client_app
 ```
 Let's run our code without arguments to see what it can do
 
@@ -512,7 +486,7 @@ There is! With docker-compose, we can combine everything we've learned so far in
 
 The `docker-compose.yml` file has it's own syntax, syntax verions, and a [ton of useful tools](https://docs.docker.com/compose/compose-file/compose-file-v3/) that we won't have time to go over here.
 
-Here's what [a docker-compose.yml file](/python-app/docker-compose.yml) looks like: 
+Here's what [a docker-compose.yml file](/redis_client_app/docker-compose.yml) looks like: 
 
 ```bash
 # The syntax version of docker-compose to use
@@ -559,7 +533,7 @@ services:
 The following command will create the network, the volume, both containers (in the background), and the proper links:
 
 ```bash
-$ cd python-app
+$ cd redis_client_app
 $ docker-compose up -d --build
 
 ...
@@ -697,7 +671,7 @@ Now in VSCode, in the bottom left, we should see a green button that looks like 
 1. Click on the `Run and Debug` section in VSCode
 2. Click on the `Run` button and you should see output similar to:
 ```bash
-root@a368d1296c1e:/workspaces/2021-Bootcamp-Docker#  cd /workspaces/2021-Bootcamp-Docker ; /usr/bin/env /usr/local/bin/python /root/.vscode-server/extensions/ms-python.python-2022.8.1/pythonFiles/lib/python/debugpy/launcher 46805 -- python-app/redis_client.py hello_world 
+root@a368d1296c1e:/workspaces/2024-Bootcamp-Docker#  cd /workspaces/2024-Bootcamp-Docker ; /usr/bin/env /usr/local/bin/python /root/.vscode-server/extensions/ms-python.python-2022.8.1/pythonFiles/lib/python/debugpy/launcher 46805 -- redis_client_app/redis_client.py hello_world 
 Oh hai
 ```
 3. If you want to experiement more, add a breakpoint to the hello_world method and it should stop on that line next time you run.
@@ -717,4 +691,4 @@ By going through this exercise, you should have a better idea of what Docker is 
   - Easily test across python versions, by using a different base image for each build/test
   - More info: https://www.jetbrains.com/help/pycharm/using-docker-compose-as-a-remote-interpreter.html
 
-I strongly believe that containers are the future, so this knowledge is going to be foundational before long. Any time you need a new software service, application, development environment, cicd runners, etc. just think `what i'm doing is probably a container, and it'll be easier to just use the container`.
+I strongly believe that containers are the future, so this knowledge is going to be foundational before long. Any time you need to try out a new service, tool, platform, etc. check if a docker image exists for it. 

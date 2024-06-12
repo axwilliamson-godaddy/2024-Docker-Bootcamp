@@ -1,5 +1,5 @@
-Part 2/Django/data/**
-Part 2/Django/static/**
+django_app_for_part_2/Django/data/**
+django_app_for_part_2/Django/static/**
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -5,7 +5,7 @@
             "name": "Run hello world",
             "type": "python",
             "request": "launch",
-            "program": "python-app/redis_client.py",
+            "program": "redis_client_app/redis_client.py",
             "console": "integratedTerminal",
             "args": ["hello_world"]
         }

@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
 
 from .models import Choice, Question
+import time
 
 
 class IndexView(generic.ListView):
@@ -50,6 +51,18 @@ def vote(request, question_id):
         # user hits the Back button.
         return HttpResponseRedirect(reverse('polls:results',
                                             args=(question.id,)))
+
+
+def i_take_so_long_to_load(request, how_long=5):
+    all_questions = Question.objects.all()
+    all_answers = Choice.objects.all()
+    time.sleep(int(how_long))
+    return HttpResponse('I took so long to load! I slept for ' + str(how_long) + ' seconds! I have ' + str(
+        len(all_questions)) + ' questions and ' + str(len(all_answers)) + ' answers.')
+
+
+def raise_error(request):
+    raise Exception('This is a test error')
 
 
 class ResultsView(generic.DetailView):
