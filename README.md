@@ -31,13 +31,13 @@ Essentially,
 Install Brew (if needed):
 
 ```bash
-$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 Have Brew install Docker
 
 ```bash
-$ brew install --cask docker
+brew install --cask docker
 ```
 
 #### Windows Users
@@ -127,7 +127,7 @@ Ok, let's get started.
 All we need to do is type `docker pull REPOSITORY[:TAG]`. What does this syntax mean? Well docker images are stored in repositories, just like code is stored in git repositories. By default, all images are pulled from DockerHub. You are able to create and manage your own image repositories, but we won't go over that. The image repository is required, but the tag isn't and will be defaulted to `latest` if nothing is given for it.
 
 ```bash
-$ docker pull redis
+docker pull redis
 ```
 
 Which should output something like: 
@@ -144,7 +144,7 @@ docker.io/library/redis:latest
 To view the image details, we just need to type `docker images [REPOSITORY[:TAG]]`. This time, the repository is not required, but we are going to use it to limit our results to the image we want. For example:
 
 ```bash
-$ docker images redis
+docker images redis
 ```
 
 Which should output something like: 
@@ -158,7 +158,7 @@ redis        latest    fad0ee7e917a   2 weeks ago   105MB
 > Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d)
 
 ```bash
-$ docker run --name redis -d redis:latest
+docker run --name redis -d redis:latest
 ```
 
 This should spit out the docker image id, which is a unique identifier for the container.
@@ -168,7 +168,7 @@ This should spit out the docker image id, which is a unique identifier for the c
 > Check the status of the container
 
 ```bash
-$ docker ps
+docker ps
 ```
 
 This should output something like: 
@@ -179,7 +179,7 @@ CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS  
 
 ### Check Redis Logs
 ```bash
-$ docker logs redis
+docker logs redis
 ```
 
 Which outputs: 
@@ -200,7 +200,7 @@ Read the following command like:
 
 
 ```bash
-$ docker exec -it redis redis-cli SET myname Andrew
+docker exec -it redis redis-cli SET myname Andrew
 ```
 
 Which should output: 
@@ -210,7 +210,7 @@ OK
 
 ### Get data from Redis
 ```bash
-$ docker exec -it redis redis-cli GET myname
+docker exec -it redis redis-cli GET myname
 ```
 
 Which should output: 
@@ -220,7 +220,7 @@ Which should output:
 
 ### Stop Redis container
 ```bash
-$ docker stop redis
+docker stop redis
 ```
 
 This should output the container name that was stopped.
@@ -232,7 +232,7 @@ redis
 ### Try to get data again
 
 ```bash
-$ docker exec -it redis redis-cli GET myname
+docker exec -it redis redis-cli GET myname
 ```
 
 ```
@@ -241,7 +241,7 @@ Error response from daemon: Container <id> is not running
 
 ### Start the stopped Redis container
 ```bash
-$ docker start redis
+docker start redis
 ```
 
 This should output the container name that was started.
@@ -255,7 +255,7 @@ redis
 When you try to get the data again, this time, we see that the data is still there.
 
 ```bash
-$ docker exec -it redis redis-cli GET myname
+docker exec -it redis redis-cli GET myname
 ```
 
 Which should output: 
@@ -270,7 +270,7 @@ Finally, remove the container which will destroy the data inside of redis and re
 > Remember to stop the container before attempting to removing!
 
 ```bash
-$ docker stop redis && docker rm redis
+docker stop redis && docker rm redis
 ```
 
 This should output the container name that was killed.
@@ -282,7 +282,7 @@ redis
 ### Recreate and see that the data doesn't exist anymore
 
 ```bash
-$ docker run --rm --name redis -d redis:latest && docker exec -it redis redis-cli GET myname; docker stop redis && docker rm redis;
+docker run --rm --name redis -d redis:latest && docker exec -it redis redis-cli GET myname; docker stop redis && docker rm redis;
 ```
 
 Which should output: 
@@ -301,7 +301,7 @@ In modern container orchestration technologies such as Kubernetes or Docker-Swar
 Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d)
 
 ```bash
-$ docker volume create redis_data
+docker volume create redis_data
 ```
 
 This should output the volume id, which is a unique identifier for the volume.
@@ -315,7 +315,7 @@ redis_data
 Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d) with volume 'redis_data'
 
 ```bash
-$ docker run -v redis_data:/data --name redis -d redis:latest 
+docker run -v redis_data:/data --name redis -d redis:latest 
 ```
 
 This should output the container id, which is a unique identifier for the container. For example:
@@ -329,7 +329,7 @@ This should output the container id, which is a unique identifier for the contai
 Let's create some data, then exit the container.
 
 ```bash
-$ docker exec -it redis redis-cli
+docker exec -it redis redis-cli
 ```
 
 Which will take you into the redis-cli shell. Run these commands:
@@ -345,7 +345,7 @@ OK
 Make sure the data exists, then exit the container.
 
 ```bash
-$ docker exec -it redis redis-cli
+docker exec -it redis redis-cli
 ```
 
 Which will take you back into the redis-cli shell. Run these commands to validate that the data still exists:
@@ -361,7 +361,7 @@ Which will take you back into the redis-cli shell. Run these commands to validat
 ### Delete Redis container
 
 ```bash
-$ docker stop redis && docker rm redis
+docker stop redis && docker rm redis
 ```
 
 This should output the container name that was stopped and killed.
@@ -374,7 +374,7 @@ redis
 ### Recreate the Redis container, using the same docker volume
 
 ```bash
-$ docker run -v redis_data:/data --name redis -d redis:latest
+docker run -v redis_data:/data --name redis -d redis:latest
 ```
 
 ```
@@ -384,7 +384,7 @@ $ docker run -v redis_data:/data --name redis -d redis:latest
 ### Validate data persistence
 
 ```bash
-$ docker exec -it redis redis-cli GET myname
+docker exec -it redis redis-cli GET myname
 ```
 
 ```
@@ -424,14 +424,14 @@ Using this image, we can build a container that can run our app on almost any ma
 Build our container and tag (name) it as "bootcamp". The `redis_client_app` tells docker what context to use for building the image. In this case we want to be inside of the folder that has our code.
 
 ```bash
-$ docker build -f redis_client_app/Dockerfile -t bootcamp redis_client_app
+docker build -f redis_client_app/Dockerfile -t bootcamp redis_client_app
 ```
 Let's run our code without arguments to see what it can do
 
 ### Run our image
 
 ```bash
-$ docker run bootcamp
+docker run bootcamp
 ```
 
 Which should output:
@@ -456,7 +456,7 @@ COMMANDS
 Alright now that our container is running, let's just make sure we can connect to Redis with `check_redis`.
 
 ```bash
-$ docker run bootcamp check_redis
+docker run bootcamp check_redis
 ```
 
 Which should output something like:
@@ -477,7 +477,7 @@ redis.exceptions.ConnectionError: Error -2 connecting to redis:6379. Name or ser
 Create a docker network to act as an network environment for multiple containers.
 
 ```bash
-$ docker network create bootcamp_net --attachable
+docker network create bootcamp_net --attachable
 ```
 
 This should output the network id, which is a unique identifier for the network.
@@ -490,14 +490,14 @@ This should output the network id, which is a unique identifier for the network.
 Okay now that we have a network, let's attach our redis container to it.
 
 ```bash
-$ docker network connect bootcamp_net redis --alias redis
+docker network connect bootcamp_net redis --alias redis
 ```
 
 #### docker inspect redis
 Not the greatest output for this command so let's check it manually. 
 
 ```bash
-$ docker inspect redis
+docker inspect redis
 ```
 
 ```
@@ -517,7 +517,7 @@ $ docker inspect redis
 That's what we're looking for. Okay cool, now we need to run our container with this network as well.
 
 ```bash
-$ docker run --net bootcamp_net bootcamp check_redis
+docker run --net bootcamp_net bootcamp check_redis
 ```
 
 ```
@@ -529,7 +529,7 @@ Yay! Now we can connect to redis from our other container. Let's check on that d
 
 #### Run a single command
 ```bash
-$ docker run -t --net  bootcamp_net bootcamp get_data myname
+docker run -it --net  bootcamp_net bootcamp get_data myname
 ```
 
 ```
@@ -542,7 +542,7 @@ val='Andrew'
 We can also store new data using an interactive shell (`-i`):
 
 ```bash
-$ docker run -it --net  bootcamp_net bootcamp store_data
+docker run -it --net  bootcamp_net bootcamp store_data
 ```
 
 ```
@@ -557,7 +557,7 @@ The data has been stored in redis
 Now let's check for that new data:
 
 ```bash
-$ docker run -t --net  bootcamp_net bootcamp get_data thebestfood
+docker run -it --net  bootcamp_net bootcamp get_data thebestfood
 ```
 
 ```
@@ -580,9 +580,6 @@ The `docker-compose.yml` file has it's own syntax, syntax verions, and a [ton of
 Here's what [a docker-compose.yml file](/redis_client_app/docker-compose.yml) looks like: 
 
 ```bash
-# The syntax version of docker-compose to use
-version: "3.8"
-
 # Create the network so that our containers can talk to eachother
 networks:
     redis:
@@ -612,7 +609,7 @@ services:
         networks: 
             - redis
         entrypoint: "/bin/sh"
-        tty: yes
+        tty: true
         healthcheck:
             test: ["CMD", "python", "redis_client.py", "check_redis"] 
             interval: 3s
@@ -624,8 +621,7 @@ services:
 The following command will create the network, the volume, both containers (in the background), and the proper links:
 
 ```bash
-$ cd redis_client_app
-$ docker-compose up -d --build
+cd redis_client_app && docker-compose up -d --build
 ```
 
 ```
@@ -638,7 +634,7 @@ Starting redis_cache_1 ... done
 Let's check on it! Run the following command to see the status of everything:
 
 ```bash
-$ docker-compose ps
+docker-compose ps
 ```
 
 ```
@@ -650,19 +646,12 @@ redis_cache_1   docker-entrypoint.sh redis ...   Up             6379/tcp
 
 > The `Healthy` status above indicates that the command we defined as the healthcheck is returning without failing.
 
-#### docker-compose exec
-Now let's run our commands again, this time from inside the container! The following command will attach us to the python container so that we can run the same commands as before. We read this command like so: `docker execute <service_name> <command_inside_container>`.
-
-```bash
-$ docker-compose exec app /bin/sh
-```
-
 ##### Side note
 
 Most docker-contains have some type of shell that you can use to run commands with. In this case, the command we want to run will open up a new shell instance `/bin/sh` and attach us to it so that it acts as our new shell. When we are done, we exit it with `exit`. You could replace `/bin/sh` with any valid executable in the `$PATH` environment variable. For example, listing the files in the `WORKDIR` directory of a container:
 
 ```bash
-$ docker-compose exec app ls -lrt
+docker-compose exec app ls -lrt
 ```
 
 ```
@@ -673,11 +662,18 @@ total 16
 -rw-r--r-- 1 root root 1094 Jun 21 23:06 redis_client.py
 ```
 
+#### docker-compose exec
+Now let's run our commands again, this time from inside the container! The following command will attach us to the python container so that we can run the same commands as before. We read this command like so: `docker execute <service_name> <command_inside_container>`.
+
+```bash
+docker-compose exec app /bin/sh
+```
+
 ##### Living inside a container
 Now you are inside the container, feel free to take a look around. When you are ready, run the `ENTRYPOINT` command:
 
 ```
-$ python redis_client.py
+python redis_client.py
 ```
 
 ```
@@ -696,18 +692,126 @@ COMMANDS
 
      check_redis
 
----
+```
 
-$ python redis_client.py check_redis
+```bash
+python redis_client.py check_redis
+```
 
+```
 True
 ```
 
 Exit the container context by typing:
 
 ```bash
-$ exit
+exit
 ```
+
+#### Or you can just run the app directly
+
+```bash
+docker-compose exec app python redis_client.py
+```
+
+#### docker-compose scale
+
+Using the scale command, we are able to easily spin up more containers of the same type. 
+
+```bash
+docker-compose scale cache=2
+```
+    
+```text
+[+] Running 1/2
+ ✔ Container redis-cache-1  Running                                                                                                                                                                                                                                                                       0.0s 
+ ⠹ Container redis-cache-2  Started
+```
+
+#### docker-compose logs
+
+Using the logs command of docker-compose, we can see the logs of all the containers in the docker-compose file.
+
+```bash
+docker-compose logs
+```
+
+```text
+cache-1  | 1:C 26 Jun 2024 22:47:57.817 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+cache-1  | 1:C 26 Jun 2024 22:47:57.817 * Redis version=7.2.5, bits=64, commit=00000000, modified=0, pid=1, just started
+cache-1  | 1:C 26 Jun 2024 22:47:57.817 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+cache-1  | 1:M 26 Jun 2024 22:47:57.817 * monotonic clock: POSIX clock_gettime
+cache-1  | 1:M 26 Jun 2024 22:47:57.818 * Running mode=standalone, port=6379.
+cache-1  | 1:M 26 Jun 2024 22:47:57.818 * Server initialized
+cache-1  | 1:M 26 Jun 2024 22:47:57.818 * Loading RDB produced by version 7.2.5
+cache-1  | 1:M 26 Jun 2024 22:47:57.819 * RDB age 129 seconds
+cache-1  | 1:M 26 Jun 2024 22:47:57.819 * RDB memory usage when created 0.90 Mb
+cache-1  | 1:M 26 Jun 2024 22:47:57.819 * Done loading RDB, keys loaded: 0, keys expired: 0.
+cache-1  | 1:M 26 Jun 2024 22:47:57.819 * DB loaded from disk: 0.000 seconds
+cache-1  | 1:M 26 Jun 2024 22:47:57.819 * Ready to accept connections tcp
+```
+
+Just view the logs for a single service:
+
+```bash
+docker-compose logs cache
+```
+
+```text
+...
+cache-1  | 22:C 26 Jun 2024 23:07:31.080 * DB saved on disk
+cache-2  | 1:C 26 Jun 2024 23:08:22.961 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+...
+```
+
+#### docker-compose stats
+
+```bash
+docker-compose stats
+```
+
+Which will take over your console and show you the stats of the containers in the docker-compose file.
+
+```text
+           Name                         CPU               Memory            PIDs
+        ---------------------------------------------------------------------------
+        <stats about your services appear here>
+```
+
+Type control-c to exit the stats view.
+
+#### docker-compose top
+
+```bash
+docker-compose top
+```
+
+Which will show you the top processes running in each container.
+
+```text
+redis-app-1
+UID    PID     PPID    C    STIME   TTY   TIME       CMD
+root   80731   80713   0    22:59   ?     00:00:00   /bin/sh   
+
+redis-cache-1
+UID   PID     PPID    C    STIME   TTY   TIME       CMD
+999   79610   79578   0    22:57   ?     00:00:01   redis-server *:6379   
+
+redis-cache-2
+UID   PID     PPID    C    STIME   TTY   TIME       CMD
+999   85169   85150   0    23:08   ?     00:00:00   redis-server *:6379 
+```
+
+#### docker-compose events
+
+To see what is happening with your containers, you can use the events command.
+    
+```bash
+docker-compose events
+```
+
+This will show the check_redis healthcheck running over and over again. To exit, type control-c.
+
 
 #### docker-compose down
 To bring all the containers down, type: 
@@ -715,7 +819,7 @@ To bring all the containers down, type:
 Exit the container context by typing:
 
 ```bash
-$ docker-compose down
+docker-compose down
 ```
 
 > As you can see, docker compose drastically reduces development time while allowing the same features as the CLI.
@@ -731,13 +835,13 @@ IDEs like PyCharm and Visual Studio Code can make use of docker to provide a fre
 Install Brew (if needed):
 
 ```bash
-$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 Have Brew install VSCode
 
 ```bash
-$ brew install --cask visual-studio-code
+brew install --cask visual-studio-code
 ```
 
 #### Windows Users
@@ -754,7 +858,7 @@ Install from this link: https://code.visualstudio.com/download
 ### Build & Run our development container
 
 ```bash
-$ docker-compose build
+docker-compose build
 ```
 
 ```
