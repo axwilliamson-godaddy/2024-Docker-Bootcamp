@@ -716,17 +716,42 @@ docker-compose exec app python redis_client.py
 
 #### docker-compose scale
 
-Using the scale command, we are able to easily spin up more containers of the same type. 
+Using the scale command, we are able to easily spin up more containers of the same type. This is useful for load balancing, or for testing purposes. It's also a great way to see how your application will behave in a distributed environment. There are a lot of things to consider when scaling, but for now, let's just see how it works.
 
 ```bash
 docker-compose scale cache=2
 ```
-    
+   
+And now we can see the new container spinning up:
+ 
 ```text
 [+] Running 1/2
  ✔ Container redis-cache-1  Running                                                                                                                                                                                                                                                                       0.0s 
  ⠹ Container redis-cache-2  Started
 ```
+
+or if you want to go crazy:
+
+```bash
+docker-compose scale cache=10
+```
+
+```text
+>
+[+] Running 1/10
+ ✔ Container redis-cache-1   Running                                                                                                                                                                                                                                                                      0.0s 
+ ⠼ Container redis-cache-10  Started                                                                                                                                                                                                                                                                      1.5s 
+ ⠼ Container redis-cache-2   Started                                                                                                                                                                                                                                                                      1.5s 
+ ⠼ Container redis-cache-4   Started                                                                                                                                                                                                                                                                      1.5s 
+ ⠼ Container redis-cache-3   Started                                                                                                                                                                                                                                                                      1.5s 
+ ⠼ Container redis-cache-6   Started                                                                                                                                                                                                                                                                      1.5s 
+ ⠼ Container redis-cache-8   Started                                                                                                                                                                                                                                                                      1.5s 
+ ⠼ Container redis-cache-9   Started                                                                                                                                                                                                                                                                      1.5s 
+ ⠼ Container redis-cache-7   Started                                                                                                                                                                                                                                                                      1.5s 
+ ⠼ Container redis-cache-5   Started 
+```
+
+Why is this useful? Well, if you have a lot of jobs to do, you can spin up a lot of workers to do them. If you have a lot of traffic, you can spin up a lot of web servers to handle it. If you have a lot of data, you can spin up a lot of databases to store it. 
 
 #### docker-compose logs
 
@@ -737,18 +762,18 @@ docker-compose logs
 ```
 
 ```text
-cache-1  | 1:C 26 Jun 2024 22:47:57.817 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-cache-1  | 1:C 26 Jun 2024 22:47:57.817 * Redis version=7.2.5, bits=64, commit=00000000, modified=0, pid=1, just started
-cache-1  | 1:C 26 Jun 2024 22:47:57.817 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
-cache-1  | 1:M 26 Jun 2024 22:47:57.817 * monotonic clock: POSIX clock_gettime
-cache-1  | 1:M 26 Jun 2024 22:47:57.818 * Running mode=standalone, port=6379.
-cache-1  | 1:M 26 Jun 2024 22:47:57.818 * Server initialized
-cache-1  | 1:M 26 Jun 2024 22:47:57.818 * Loading RDB produced by version 7.2.5
-cache-1  | 1:M 26 Jun 2024 22:47:57.819 * RDB age 129 seconds
-cache-1  | 1:M 26 Jun 2024 22:47:57.819 * RDB memory usage when created 0.90 Mb
-cache-1  | 1:M 26 Jun 2024 22:47:57.819 * Done loading RDB, keys loaded: 0, keys expired: 0.
-cache-1  | 1:M 26 Jun 2024 22:47:57.819 * DB loaded from disk: 0.000 seconds
-cache-1  | 1:M 26 Jun 2024 22:47:57.819 * Ready to accept connections tcp
+cache-10  | 1:M 26 Jun 2024 23:30:07.599 * Ready to accept connections tcp
+cache-1   | 1:M 26 Jun 2024 23:30:03.715 * monotonic clock: POSIX clock_gettime
+cache-3   | 1:C 26 Jun 2024 23:30:07.733 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+cache-3   | 1:M 26 Jun 2024 23:30:07.733 * monotonic clock: POSIX clock_gettime
+...
+cache-6   | 1:M 26 Jun 2024 23:30:06.811 * Done loading RDB, keys loaded: 2, keys expired: 0.
+cache-3   | 1:M 26 Jun 2024 23:30:07.734 * RDB memory usage when created 0.83 Mb
+cache-3   | 1:M 26 Jun 2024 23:30:07.734 * Done loading RDB, keys loaded: 2, keys expired: 0.
+cache-3   | 1:M 26 Jun 2024 23:30:07.734 * DB loaded from disk: 0.000 seconds
+cache-3   | 1:M 26 Jun 2024 23:30:07.734 * Ready to accept connections tcp
+cache-6   | 1:M 26 Jun 2024 23:30:06.811 * DB loaded from disk: 0.001 seconds
+cache-6   | 1:M 26 Jun 2024 23:30:06.811 * Ready to accept connections tcp
 ```
 
 Just view the logs for a single service:
@@ -800,6 +825,8 @@ UID   PID     PPID    C    STIME   TTY   TIME       CMD
 redis-cache-2
 UID   PID     PPID    C    STIME   TTY   TIME       CMD
 999   85169   85150   0    23:08   ?     00:00:00   redis-server *:6379 
+
+...
 ```
 
 #### docker-compose events
@@ -812,6 +839,15 @@ docker-compose events
 
 This will show the check_redis healthcheck running over and over again. To exit, type control-c.
 
+#### Wrapping up
+
+Let's make sure everything still works:
+
+```bash
+docker-compose exec app python redis_client.py check_redis
+```
+
+This should output True.
 
 #### docker-compose down
 To bring all the containers down, type: 
