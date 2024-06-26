@@ -128,7 +128,10 @@ All we need to do is type `docker pull REPOSITORY[:TAG]`. What does this syntax 
 
 ```bash
 $ docker pull redis
+```
 
+Which should output something like: 
+```
 Using default tag: latest
 latest: Pulling from library/redis
 Digest: sha256:7e2c6181ad5c425443b56c7c73a9cd6df24a122345847d1ea9bb86a5afc76325
@@ -142,24 +145,34 @@ To view the image details, we just need to type `docker images [REPOSITORY[:TAG]
 
 ```bash
 $ docker images redis
+```
 
+Which should output something like: 
+```
 REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
 redis        latest    fad0ee7e917a   2 weeks ago   105MB
 ```
 
 ### Create Redis container
-```bash
-# Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d)
-$ docker run --name redis -d redis:latest
 
-<docker_image_id>
+> Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d)
+
+```bash
+$ docker run --name redis -d redis:latest
 ```
 
-### View Redis in container list
-```bash
-# Check the status of the container
-$ docker ps
+This should spit out the docker image id, which is a unique identifier for the container.
 
+### View Redis in container list
+
+> Check the status of the container
+
+```bash
+$ docker ps
+```
+
+This should output something like: 
+```
 CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS      NAMES
 16ad2cca6925   redis:latest   "docker-entrypoint.s…"   22 seconds ago   Up 21 seconds   6379/tcp   redis
 ```
@@ -167,42 +180,57 @@ CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS  
 ### Check Redis Logs
 ```bash
 $ docker logs redis
+```
 
-1:C 21 Jun 2024 19:21:53.171 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-1:C 21 Jun 2024 19:21:53.171 # Redis version=6.2.4, bits=64, commit=00000000, modified=0, pid=1, just started
-1:C 21 Jun 2024 19:21:53.171 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
-1:M 21 Jun 2024 19:21:53.172 * monotonic clock: POSIX clock_gettime
-1:M 21 Jun 2024 19:21:53.172 * Running mode=standalone, port=6379.
-1:M 21 Jun 2024 19:21:53.172 # Server initialized
-1:M 21 Jun 2024 19:21:53.173 * Ready to accept connections
+Which outputs: 
+```
+1:C 26 Jun 2024 20:22:22.312 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+1:C 26 Jun 2024 20:22:22.312 * Redis version=7.2.5, bits=64, commit=00000000, modified=0, pid=1, just started
+1:C 26 Jun 2024 20:22:22.312 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+1:M 26 Jun 2024 20:22:22.312 * monotonic clock: POSIX clock_gettime
+1:M 26 Jun 2024 20:22:22.313 * Running mode=standalone, port=6379.
+1:M 26 Jun 2024 20:22:22.313 * Server initialized
+1:M 26 Jun 2024 20:22:22.313 * Ready to accept connections tcp
 ```
 
 ### Store data in Redis
+
+Read the following command like: 
+> docker Execute interactive (-i) with a real shell (-t) redis (container name) redis-cli (command to run inside container) SET myname Andrew (arguments for the command ie. redis-cli)
+
+
 ```bash
-# Read the following command like:
-
-# docker Execute -i (interactive) -t (use a pseudo-TTY) redis (container name) redis-cli (command to run inside container) SET myname Andrew (arguments for the command ie. redis-cli)
-
 $ docker exec -it redis redis-cli SET myname Andrew
+```
 
+Which should output: 
+```
 OK
 ```
 
 ### Get data from Redis
 ```bash
 $ docker exec -it redis redis-cli GET myname
+```
 
+Which should output: 
+```
 "Andrew"
 ```
 
 ### Stop Redis container
 ```bash
 $ docker stop redis
+```
 
+This should output the container name that was stopped.
+
+```
 redis
 ```
 
 ### Try to get data again
+
 ```bash
 $ docker exec -it redis redis-cli GET myname
 
@@ -212,7 +240,11 @@ Error response from daemon: Container <id> is not running
 ### Start the stopped Redis container
 ```bash
 $ docker start redis
+```
 
+This should output the container name that was started.
+
+```
 redis
 ```
 
@@ -222,7 +254,10 @@ When you try to get the data again, this time, we see that the data is still the
 
 ```bash
 $ docker exec -it redis redis-cli GET myname
+```
 
+Which should output: 
+```
 "Andrew"
 ```
 
@@ -230,19 +265,26 @@ $ docker exec -it redis redis-cli GET myname
 
 Finally, remove the container which will destroy the data inside of redis and remove the container from `docker ps`.
 
-> remember to stop the container before attempting to removing!
+> Remember to stop the container before attempting to removing!
 
 ```bash
-$ docker rm redis
+$ docker stop redis && docker rm redis
+```
 
+This should output the container name that was killed.
+
+```
 redis
 ```
 
 ### Recreate and see that the data doesn't exist anymore
 
 ```bash
-$ docker run --rm --name redis -d redis:latest && docker exec -it redis redis-cli GET myname; docker stop redis;
+$ docker run --rm --name redis -d redis:latest && docker exec -it redis redis-cli GET myname; docker stop redis && docker rm redis;
+```
 
+Which should output: 
+``` 
 (nil)
 ```
 
@@ -253,19 +295,31 @@ In modern container orchestration technologies such as Kubernetes or Docker-Swar
 > Docker Volumes allow you to map directories and files from the host os into the container os. 
 
 ### Create Redis data volume
-```bash
-# Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d)
-$ docker volume create redis_data
 
+Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d)
+
+```bash
+$ docker volume create redis_data
+```
+
+This should output the volume id, which is a unique identifier for the volume.
+
+```
 redis_data
 ```
 
 ### Recreate Redis container, using a docker volume
-```bash
-# Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d) with volume 'redis_data'
-$ docker run -v redis_data:/data --name redis -d redis:latest 
 
-<docker_image_id>
+Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d) with volume 'redis_data'
+
+```bash
+$ docker run -v redis_data:/data --name redis -d redis:latest 
+```
+
+This should output the container id, which is a unique identifier for the container. For example:
+
+```
+51a331d26da6d0722fce95956ba52619a11b4870c0016df496a963f3c3641c68
 ```
 
 ### Enter Redis container, using interactive session
@@ -274,7 +328,11 @@ Let's create some data, then exit the container.
 
 ```bash
 $ docker exec -it redis redis-cli
+```
 
+Which will take you into the redis-cli shell. Run these commands:
+
+```
 127.0.0.1:6379> SET myname Andrew
 OK
 127.0.0.1:6379> SET moredata potato
@@ -286,7 +344,11 @@ Make sure the data exists, then exit the container.
 
 ```bash
 $ docker exec -it redis redis-cli
+```
 
+Which will take you back into the redis-cli shell. Run these commands to validate that the data still exists:
+
+```
 127.0.0.1:6379> GET myname
 "Andrew"
 127.0.0.1:6379> GET moredata
@@ -298,7 +360,11 @@ $ docker exec -it redis redis-cli
 
 ```bash
 $ docker stop redis && docker rm redis
+```
 
+This should output the container name that was stopped and killed.
+
+```
 redis
 redis
 ```
@@ -307,7 +373,9 @@ redis
 
 ```bash
 $ docker run -v redis_data:/data --name redis -d redis:latest
+```
 
+```
 <id>
 ```
 
@@ -315,7 +383,9 @@ $ docker run -v redis_data:/data --name redis -d redis:latest
 
 ```bash
 $ docker exec -it redis redis-cli GET myname
+```
 
+```
 "Andrew"
 ```
 
@@ -349,8 +419,9 @@ Using this image, we can build a container that can run our app on almost any ma
 
 ### Build our image
 
+Build our container and tag (name) it as "bootcamp". The `redis_client_app` tells docker what context to use for building the image. In this case we want to be inside of the folder that has our code.
+
 ```bash
-# Build our container and tag (name) it as "bootcamp". The `redis_client_app` tells docker what context to use for building the image. In this case we want to be inside of the folder that has our code.
 $ docker build -f redis_client_app/Dockerfile -t bootcamp redis_client_app
 ```
 Let's run our code without arguments to see what it can do
@@ -359,7 +430,10 @@ Let's run our code without arguments to see what it can do
 
 ```bash
 $ docker run bootcamp
+```
 
+Which should output:
+```
 NAME
     redis_client.py
 
@@ -381,7 +455,10 @@ Alright now that our container is running, let's just make sure we can connect t
 
 ```bash
 $ docker run bootcamp check_redis
+```
 
+Which should output something like:
+```
 ...
   File "/usr/local/lib/python3.8/site-packages/redis/connection.py", line 1192, in get_connection
     connection.connect()
@@ -399,7 +476,11 @@ Create a docker network to act as an network environment for multiple containers
 
 ```bash
 $ docker network create bootcamp_net --attachable
+```
 
+This should output the network id, which is a unique identifier for the network.
+
+```
 <id>
 ```
 
@@ -408,8 +489,6 @@ Okay now that we have a network, let's attach our redis container to it.
 
 ```bash
 $ docker network connect bootcamp_net redis --alias redis
-
-...
 ```
 
 #### docker inspect redis
@@ -417,7 +496,9 @@ Not the greatest output for this command so let's check it manually.
 
 ```bash
 $ docker inspect redis
+```
 
+```
 ...
             "IPv6Gateway": "",
             "MacAddress": "",
@@ -435,7 +516,9 @@ That's what we're looking for. Okay cool, now we need to run our container with 
 
 ```bash
 $ docker run --net bootcamp_net bootcamp check_redis
+```
 
+```
 True
 ```
 
@@ -445,7 +528,9 @@ Yay! Now we can connect to redis from our other container. Let's check on that d
 #### Run a single command
 ```bash
 $ docker run -t --net  bootcamp_net bootcamp get_data myname
+```
 
+```
 The data is in redis!
 key='myname'
 val='Andrew'
@@ -456,7 +541,9 @@ We can also store new data using an interactive shell (`-i`):
 
 ```bash
 $ docker run -it --net  bootcamp_net bootcamp store_data
+```
 
+```
 What should we call this data?
 thebestfood
 What is the data?
@@ -469,7 +556,9 @@ Now let's check for that new data:
 
 ```bash
 $ docker run -t --net  bootcamp_net bootcamp get_data thebestfood
+```
 
+```
 The data is in redis!
 key='thebestfood'
 val='potato'
@@ -535,7 +624,9 @@ The following command will create the network, the volume, both containers (in t
 ```bash
 $ cd redis_client_app
 $ docker-compose up -d --build
+```
 
+```
 ...
 Starting redis_app_1   ... done
 Starting redis_cache_1 ... done
@@ -546,6 +637,9 @@ Let's check on it! Run the following command to see the status of everything:
 
 ```bash
 $ docker-compose ps
+```
+
+```
     Name                   Command                  State        Ports  
 ------------------------------------------------------------------------
 redis_app_1     /bin/sh                          Up (healthy)           
@@ -566,9 +660,10 @@ $ docker-compose exec app /bin/sh
 Most docker-contains have some type of shell that you can use to run commands with. In this case, the command we want to run will open up a new shell instance `/bin/sh` and attach us to it so that it acts as our new shell. When we are done, we exit it with `exit`. You could replace `/bin/sh` with any valid executable in the `$PATH` environment variable. For example, listing the files in the `WORKDIR` directory of a container:
 
 ```bash
-
 $ docker-compose exec app ls -lrt
+```
 
+```
 total 16
 -rw-r--r-- 1 root root   48 Jun 21 18:56 requirements.txt
 -rw-r--r-- 1 root root  361 Jun 21 20:46 Dockerfile
@@ -581,7 +676,9 @@ Now you are inside the container, feel free to take a look around. When you are 
 
 ```
 $ python redis_client.py
+```
 
+```
 NAME
     redis_client.py
 
@@ -656,7 +753,9 @@ Install from this link: https://code.visualstudio.com/download
 
 ```bash
 $ docker-compose build
+```
 
+```
 ...
  => => exporting layers                                                                                                                                                                                                                                                                                            0.0s
  => => writing image sha256:3cf82f189fc4a35542fc08a1663fe35a4f2e7262db398e041fa3c16839f7af57                                                                                                                                                                                                                       0.0s
