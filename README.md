@@ -233,7 +233,9 @@ redis
 
 ```bash
 $ docker exec -it redis redis-cli GET myname
+```
 
+```
 Error response from daemon: Container <id> is not running
 ```
 
