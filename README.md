@@ -139,6 +139,10 @@ Status: Image is up to date for redis:latest
 docker.io/library/redis:latest
 ```
 
+What is happening here? Well you are pulling the redis image from the default [repository](https://hub.docker.com/_/redis) on Docker Hub. 
+
+If you click on one of the tags in that repo, you can see the Dockerfile that backs the image. Here's an example of what an opensource image looks like: https://github.com/redis/docker-library-redis/blob/0d682fed252b85f39d2033294eab217be02f95a1/7.4-rc/debian/Dockerfile
+
 ### Inspect the Redis image
 
 To view the image details, we just need to type `docker images [REPOSITORY[:TAG]]`. This time, the repository is not required, but we are going to use it to limit our results to the image we want. For example:
@@ -153,6 +157,10 @@ REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
 redis        latest    fad0ee7e917a   2 weeks ago   105MB
 ```
 
+What does this tell us? Well we are using the default image tag `latest` which will (in most cases) be the most recent version of the image. The `IMAGE ID` is a unique identifier for the image, and the `SIZE` is the size of the image on disk.
+
+In this example, we can see that this particular image was built two weeks ago and is 105MB in size.
+
 ### Create Redis container
 
 > Run the open-source image redis image (last arg), call it 'redis' (--name redis) and run it in detached mode (-d)
@@ -161,7 +169,7 @@ redis        latest    fad0ee7e917a   2 weeks ago   105MB
 docker run --name redis -d redis:latest
 ```
 
-This should spit out the docker image id, which is a unique identifier for the container.
+This should spit out the docker image id, which is a unique identifier for the container. That's literally how easy it can be to run a Docker image.
 
 ### View Redis in container list
 
@@ -176,6 +184,8 @@ This should output something like:
 CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS      NAMES
 16ad2cca6925   redis:latest   "docker-entrypoint.s…"   22 seconds ago   Up 21 seconds   6379/tcp   redis
 ```
+
+There's our docker container running with Redis inside of it. The `STATUS` column tells us that the container is `Up` and has been running for 21 seconds. The `PORTS` column tells us that the container is listening on port `6379`.
 
 ### Check Redis Logs
 ```bash
@@ -193,7 +203,11 @@ Which outputs:
 1:M 26 Jun 2024 20:22:22.313 * Ready to accept connections tcp
 ```
 
+The logs will be different depending on the container being used, but here we see that these logs are coming from Redis and it is ready to accept connections.
+
 ### Store data in Redis
+
+Redis is a key-value cache, so it allows for very quick reads and writes. Let's store some data in Redis.
 
 Read the following command like: 
 > docker Execute interactive (-i) with a real shell (-t) redis (container name) redis-cli (command to run inside container) SET myname Andrew (arguments for the command ie. redis-cli)
@@ -203,12 +217,17 @@ Read the following command like:
 docker exec -it redis redis-cli SET myname Andrew
 ```
 
-Which should output: 
+Here we are using the `redis-cli` to interact with the redis cache inside of a container named `redis`.  Which should output: 
 ```
 OK
 ```
 
+This is the response from Redis, telling us that the data was stored successfully.
+
 ### Get data from Redis
+
+Retrieving the data we put into redis is just as easy as storing it. 
+
 ```bash
 docker exec -it redis redis-cli GET myname
 ```
@@ -229,6 +248,8 @@ This should output the container name that was stopped.
 redis
 ```
 
+The container is no longer running, but the data is still stored in the container until we remove it. We can see the stopped container using `docker ps -a` which will show all containers, running and stopped.
+
 ### Try to get data again
 
 ```bash
@@ -240,6 +261,9 @@ Error response from daemon: Container <id> is not running
 ```
 
 ### Start the stopped Redis container
+
+It's easy enough to start the container, we just need to issue the start command against the container name (or the id of the container works too).
+
 ```bash
 docker start redis
 ```
