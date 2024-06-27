@@ -281,13 +281,20 @@ redis
 
 ### Recreate and see that the data doesn't exist anymore
 
+Now we are going to create the container, this time with the `--rm` option which will remove the container when it's stopped.
+
+Once it's started, we will attempt to get the data again. Either way, we stop the container when we are done with it (which will destroy the container).
+
 ```bash
-docker run --rm --name redis -d redis:latest && docker exec -it redis redis-cli GET myname; docker stop redis && docker rm redis;
+docker run --rm --name redis -d redis:latest && docker exec -it redis redis-cli GET myname; docker stop redis;
 ```
 
 Which should output: 
 ``` 
-(nil)
+<the new container id>
+(nil) <------- this is us trying to get the data again, and it no longer exists
+
+redis
 ```
 
 ## Using [Docker Volumes](https://docs.docker.com/storage/volumes/) to preserve container data
@@ -342,7 +349,19 @@ OK
 127.0.0.1:6379> exit
 ```
 
-Make sure the data exists, then exit the container.
+Then exit the container. Validate that our new data is present by running:
+
+```bash
+docker exec -it redis redis-cli GET moredata
+```
+
+Which should output:
+
+```text
+"Potato
+```
+
+Now let's go back into the container and run these commands manually.
 
 ```bash
 docker exec -it redis redis-cli
@@ -359,6 +378,8 @@ Which will take you back into the redis-cli shell. Run these commands to validat
 ```
 
 ### Delete Redis container
+
+So now that we have written some data to the container that is backed by a volume, let's go ahead and stop and remove it:
 
 ```bash
 docker stop redis && docker rm redis
@@ -390,6 +411,8 @@ docker exec -it redis redis-cli GET myname
 ```
 "Andrew"
 ```
+
+This is one of the most fundamental concepts of Docker. By using volumes, you can ensure that your data is preserved even when the container is removed. This is extremely useful for databases, caches, and other stateful applications.
 
 ## Create custom Docker images
 
@@ -566,7 +589,19 @@ key='thebestfood'
 val='potato'
 ```
 
+There you have it! We just created a python application that is talking to our redis container and using it as our cache. In the real world, you would build more complex applications that use this cache to store and retrieve data.
+
 > Hopefully through this exercise you can see that docker can unlock some amazing development power, while remaining a secure platform to build and run containers from.
+
+#### Let's clean up after ourselves
+
+Unless you are running a large application in Docker, it's easy to forget that you have containers running, so it's always a good idea to check on them and clean up after yourself.
+
+```bash
+docker stop redis && docker rm redis
+docker stop bootcamp && docker rm bootcamp
+docker network rm bootcamp_net
+```
 
 ## Speeding things up with Docker Compose
 
@@ -580,7 +615,7 @@ The `docker-compose.yml` file has it's own syntax, syntax verions, and a [ton of
 Here's what [a docker-compose.yml file](/redis_client_app/docker-compose.yml) looks like: 
 
 ```bash
-# Create the network so that our containers can talk to eachother
+# Create the network so that our containers can talk to each-other
 networks:
     redis:
       name: redis_net
@@ -837,7 +872,7 @@ To see what is happening with your containers, you can use the events command.
 docker-compose events
 ```
 
-This will show the check_redis healthcheck running over and over again. To exit, type control-c.
+This will show the `HEALTHCHECK` in the compose file running over and over again. To exit, type control-c.
 
 #### Wrapping up
 
